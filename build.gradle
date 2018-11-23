@@ -1,0 +1,156 @@
+/*
+ * Copyright (c) 2008-2016 Haulmont.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+buildscript {
+    repositories {
+        mavenLocal()
+
+        if (System.getenv('HAULMONT_REPOSITORY_URL')) {
+            maven {
+                credentials {
+                    username System.getenv('HAULMONT_REPOSITORY_USER')
+                    password System.getenv('HAULMONT_REPOSITORY_PASSWORD')
+                }
+                url System.getenv('HAULMONT_REPOSITORY_URL')
+            }
+        } else {
+            jcenter()
+            maven { url "https://dl.bintray.com/cuba-platform/main" }
+        }
+    }
+    dependencies {
+        classpath "gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:0.4.2"
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'org.jetbrains.gradle.plugin.idea-ext'
+
+def defaultVersion = '1.0-SNAPSHOT'
+def BUILD_VERSION = 'buildVersion'
+
+def artifactVersion = rootProject.hasProperty(BUILD_VERSION) ? rootProject[BUILD_VERSION] : defaultVersion
+def isSnapshot = artifactVersion.endsWith('-SNAPSHOT')
+
+def jettyVersion = '9.3.24.v20180605'
+
+group  = 'com.haulmont.uberjar'
+version = artifactVersion
+
+ext.repositoryUrl = System.getenv('HAULMONT_REPOSITORY_URL') ?: 'https://repo.cuba-platform.com/content/groups/work'
+ext.repositoryUser = System.getenv('HAULMONT_REPOSITORY_USER') ?: 'cuba'
+ext.repositoryPassword = System.getenv('HAULMONT_REPOSITORY_PASSWORD') ?: 'cuba123'
+
+repositories {
+    mavenLocal()
+    maven {
+        credentials {
+            username repositoryUser
+            password repositoryPassword
+        }
+        url repositoryUrl
+    }
+}
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+configurations {
+    deployerJars
+}
+
+dependencies {
+    compile("org.eclipse.jetty:jetty-server:$jettyVersion")
+    compile("org.eclipse.jetty:jetty-webapp:$jettyVersion")
+    compile("org.eclipse.jetty:jetty-plus:$jettyVersion")
+    compile("org.eclipse.jetty:jetty-jndi:$jettyVersion")
+    compile("org.eclipse.jetty:jetty-continuation:$jettyVersion")
+    compile("org.eclipse.jetty.websocket:websocket-server:$jettyVersion")
+    compile("org.eclipse.jetty.websocket:javax-websocket-server-impl:$jettyVersion")
+
+    compile('commons-cli:commons-cli:1.4')
+    compile('commons-io:commons-io:2.6')
+    
+    runtime('org.apache.commons:commons-dbcp2:2.5.0')
+    runtime('ch.qos.logback:logback-classic:1.2.3')
+    runtime('org.slf4j:log4j-over-slf4j:1.7.25')
+    runtime('org.perf4j:perf4j:0.9.16')
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.java
+    from sourceSets.main.resources
+
+    classifier = 'sources'
+}
+
+artifacts {
+    archives sourceJar
+}
+
+def uploadUrl = project.hasProperty('uploadUrl') ? project.uploadUrl : null
+def haulmontUploadRepo = System.getenv('HAULMONT_REPOSITORY_UPLOAD_URL')
+if (uploadUrl == null && haulmontUploadRepo) {
+    if (!haulmontUploadRepo.endsWith('/')) {
+        haulmontUploadRepo += '/'
+    }
+    uploadUrl = haulmontUploadRepo + "${isSnapshot ? 'snapshots' : 'releases'}"
+}
+
+def uploadUser = project.hasProperty('uploadUser') ? project.uploadUser :
+        System.getenv('HAULMONT_REPOSITORY_USER')
+def uploadPassword = project.hasProperty('uploadPassword') ? project.uploadPassword :
+        System.getenv('HAULMONT_REPOSITORY_PASSWORD')
+
+uploadArchives.configure {
+    repositories.mavenDeployer {
+        name = 'httpDeployer'
+        configuration = configurations.deployerJars
+        repository(url: uploadUrl) {
+            authentication(userName: uploadUser, password: uploadPassword)
+        }
+    }
+}
+
+
+if (idea.project) {
+    idea.project.settings {
+        copyright {
+            useDefault = 'Apache'
+            profiles {
+                Apache {
+                    allowReplaceRegexp = ''
+                    keyword = 'Copyright'
+                    notice = '''Copyright (c) 2008-$today.year Haulmont.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.'''
+                }
+            }
+        }
+    }
+}
