@@ -33,7 +33,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath "gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:0.4.2"
+        classpath "gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:0.5"
     }
 }
 
@@ -41,13 +41,13 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'org.jetbrains.gradle.plugin.idea-ext'
 
-def defaultVersion = '1.0-SNAPSHOT'
+def defaultVersion = '1.1-SNAPSHOT'
 def BUILD_VERSION = 'buildVersion'
 
 def artifactVersion = rootProject.hasProperty(BUILD_VERSION) ? rootProject[BUILD_VERSION] : defaultVersion
 def isSnapshot = artifactVersion.endsWith('-SNAPSHOT')
 
-def jettyVersion = '9.3.24.v20180605'
+def jettyVersion = '9.3.26.v20190403'
 
 group  = 'com.haulmont.uberjar'
 version = artifactVersion
@@ -86,7 +86,7 @@ dependencies {
     compile('commons-cli:commons-cli:1.4')
     compile('commons-io:commons-io:2.6')
     
-    runtime('org.apache.commons:commons-dbcp2:2.5.0')
+    runtime('org.apache.commons:commons-dbcp2:2.6.0')
     runtime('ch.qos.logback:logback-classic:1.2.3')
     runtime('org.slf4j:log4j-over-slf4j:1.7.25')
     runtime('org.perf4j:perf4j:0.9.16')
