@@ -111,6 +111,9 @@ public class CubaJettyServer {
         if (appHome == null || appHome.length() == 0) {
             System.setProperty("app.home", System.getProperty("user.dir"));
         }
+        if ("/".equals(System.getProperty("app.home"))) {
+            System.setProperty("app.home", "");
+        }
         if (stopPort > 0) {
             System.setProperty("STOP.PORT", Integer.toString(stopPort));
             System.setProperty("STOP.KEY", stopKey);
