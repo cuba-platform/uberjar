@@ -20,6 +20,7 @@ import org.eclipse.jetty.plus.webapp.EnvConfiguration;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
@@ -141,6 +142,14 @@ public class CubaJettyServer {
         }
         server.setStopAtShutdown(true);
         List<Handler> handlers = new ArrayList<>();
+        HandlerWrapper handlerWrapper = null;
+        if (server.getHandler() != null) {
+            if (server.getHandler() instanceof HandlerWrapper) {
+                handlerWrapper = (HandlerWrapper) server.getHandler();
+            } else {
+                handlers.add(server.getHandler());
+            }
+        }
         if (CubaJettyUtils.hasCoreApp(serverClassLoader)) {
             String coreContextPath = contextPath;
             if (isSingleJar(serverClassLoader)) {
@@ -168,7 +177,12 @@ public class CubaJettyServer {
 
         HandlerCollection handlerCollection = new HandlerCollection();
         handlerCollection.setHandlers(handlers.toArray(new Handler[0]));
-        server.setHandler(handlerCollection);
+        if (handlerWrapper != null) {
+            handlerWrapper.setHandler(handlerCollection);
+            server.setHandler(handlerWrapper);
+        } else {
+            server.setHandler(handlerCollection);
+        }
 
         return server;
     }
