@@ -41,7 +41,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'org.jetbrains.gradle.plugin.idea-ext'
 
-def defaultVersion = '1.2-SNAPSHOT'
+def defaultVersion = '1.1-SNAPSHOT'
 def BUILD_VERSION = 'buildVersion'
 
 def artifactVersion = rootProject.hasProperty(BUILD_VERSION) ? rootProject[BUILD_VERSION] : defaultVersion
