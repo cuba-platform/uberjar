@@ -185,6 +185,8 @@ public class CubaJettyServer {
 
         setResourceBase(serverClassLoader, appContext, appPathInJar);
 
+        appContext.getSessionHandler().getSessionManager().getSessionCookieConfig().setHttpOnly(true);
+
         return appContext;
     }
 
@@ -203,6 +205,8 @@ public class CubaJettyServer {
                 frontContextPath + PATH_DELIMITER);
         System.setProperty("cuba.front.apiUrl", PATH_DELIMITER.equals(contextPath) ? "/rest/" :
                 contextPath + PATH_DELIMITER + "rest" + PATH_DELIMITER);
+
+        frontContext.getSessionHandler().getSessionManager().getSessionCookieConfig().setHttpOnly(true);
 
         return frontContext;
     }
