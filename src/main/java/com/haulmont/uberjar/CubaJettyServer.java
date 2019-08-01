@@ -21,9 +21,11 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.HandlerWrapper;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
+import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 import org.eclipse.jetty.xml.XmlConfiguration;
 
 import java.net.URISyntaxException;
@@ -184,6 +186,12 @@ public class CubaJettyServer {
             server.setHandler(handlerCollection);
         }
 
+        for (Handler handler : handlers) {
+            if (handler instanceof ServletContextHandler) {
+                WebSocketServerContainerInitializer.configureContext((ServletContextHandler) handler);
+            }
+        }
+
         return server;
     }
 
@@ -199,7 +207,7 @@ public class CubaJettyServer {
 
         setResourceBase(serverClassLoader, appContext, appPathInJar);
 
-        appContext.getSessionHandler().getSessionManager().getSessionCookieConfig().setHttpOnly(true);
+        appContext.getSessionHandler().getSessionCookieConfig().setHttpOnly(true);
 
         return appContext;
     }
@@ -220,7 +228,7 @@ public class CubaJettyServer {
         System.setProperty("cuba.front.apiUrl", PATH_DELIMITER.equals(contextPath) ? "/rest/" :
                 contextPath + PATH_DELIMITER + "rest" + PATH_DELIMITER);
 
-        frontContext.getSessionHandler().getSessionManager().getSessionCookieConfig().setHttpOnly(true);
+        frontContext.getSessionHandler().getSessionCookieConfig().setHttpOnly(true);
 
         return frontContext;
     }
