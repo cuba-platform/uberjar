@@ -17,6 +17,8 @@
 package com.haulmont.uberjar;
 
 import ch.qos.logback.classic.BasicConfigurator;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.classic.spi.Configurator;
@@ -46,10 +48,12 @@ public class LogbackConfigurator extends ContextAwareBase implements Configurato
             if (url != null) {
                 configureByResource(url);
             } else {
-                printInfo("Using BasicConfigurator");
+                printInfo("Configuring console output with WARN threshold");
                 BasicConfigurator basicConfigurator = new BasicConfigurator();
                 basicConfigurator.setContext(loggerContext);
                 basicConfigurator.configure(loggerContext);
+                Logger rootLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME);
+                rootLogger.setLevel(Level.WARN);
             }
         } catch (Exception e) {
             printError("Failed to configure CUBA default logging: " + e);
