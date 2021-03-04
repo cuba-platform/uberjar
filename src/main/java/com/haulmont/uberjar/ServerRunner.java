@@ -204,7 +204,7 @@ public class ServerRunner {
                         jettyServer.setPortalContextPath(jettyServer.getContextPath() + "-portal");
                     }
                 } else {
-                    jettyServer.setPortalContextPath(frontContextPath);
+                    jettyServer.setPortalContextPath(portalContextPath);
                 }
 
                 if (cmd.hasOption(jettyEnvPathOption.getOpt())) {

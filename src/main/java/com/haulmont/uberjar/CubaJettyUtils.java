@@ -58,7 +58,8 @@ public class CubaJettyUtils {
     }
 
     public static boolean isSingleJar(ClassLoader serverClassLoader) {
-        return hasCoreApp(serverClassLoader) && hasWebApp(serverClassLoader);
+        return hasCoreApp(serverClassLoader) && hasWebApp(serverClassLoader) ||
+                hasCoreApp(serverClassLoader) && hasPortalApp(serverClassLoader);
     }
 
     public static boolean hasCoreApp(ClassLoader serverClassLoader) {
