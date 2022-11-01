@@ -47,7 +47,7 @@ def BUILD_VERSION = 'buildVersion'
 def artifactVersion = rootProject.hasProperty(BUILD_VERSION) ? rootProject[BUILD_VERSION] : defaultVersion
 def isSnapshot = artifactVersion.endsWith('-SNAPSHOT')
 
-def jettyVersion = '9.4.32.v20200930'
+def jettyVersion = '9.4.49.v20220914'
 
 group  = 'com.haulmont.uberjar'
 version = artifactVersion
